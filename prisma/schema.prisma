@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:1234@localhost:5432/nodejs"
+}
+
+enum Roles {
+  SUPERADMIN
+  OWNER
+  CLIENT
+}
+
+model UserInfo {
+  id        String    @id @default(uuid())
+  role      Roles     @default(CLIENT)
+  firstName String
+  lastName  String
+  email     String    @db.Text
+  password  String    @default("")
+  phone     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Comment   Comment[]
+  Price     Price[]
+}
+
+model Price {
+  id        String   @id @default(uuid())
+  name      String
+  objPrice  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  idClient  String
+  userInfo  UserInfo @relation(fields: [idClient], references: [id], onDelete: Cascade)
+
+  @@index([idClient])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  idUser    String
+  userRole  Roles
+  message   String?
+  imageData Bytes?
+  userInfo  UserInfo @relation(fields: [idUser], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([idUser])
+}
+
+model Contract {
+  id         String   @id @default(uuid())
+  dateWanted String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
